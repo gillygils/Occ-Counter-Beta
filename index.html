@@ -104,6 +104,26 @@
   }
   .reset:hover { background: none; color: var(--red); }
   .reset:active { transform: none; box-shadow: none; }
+
+  /* TV display mode: open the page with #tv on the end of the address. */
+  body.tv { padding: 3vh 3vw; overflow: hidden; }
+  body.tv .card {
+    max-width: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-top-width: 2vh;
+    border-radius: 4vh;
+    padding: 3vh 4vw;
+  }
+  body.tv .logo { width: 22vh; height: 22vh; margin-bottom: 1vh; }
+  body.tv h1 { font-size: 7vh; }
+  body.tv .sub { font-size: 3.6vh; margin: 0.5vh 0 3vh; }
+  body.tv .label { font-size: 3.4vh; letter-spacing: 1vh; }
+  body.tv .total { font-size: 40vh; margin: 1vh 0 0; }
+  body.tv .buttons, body.tv footer { display: none; }
 </style>
 </head>
 <body>
@@ -153,6 +173,12 @@
   var modeEl = document.getElementById("mode");
   var count = 0;
   var shared = false; // true when served by server.js (count shared across devices)
+
+  function applyTvMode() {
+    document.body.classList.toggle("tv", location.hash === "#tv");
+  }
+  applyTvMode();
+  window.addEventListener("hashchange", applyTvMode);
 
   // Use logo.png if present, otherwise keep the built-in SVG.
   var img = new Image();

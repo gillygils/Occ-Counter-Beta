@@ -28,3 +28,10 @@ Put an image named `logo.png` in this folder and it replaces the built-in gift-b
 
 - `+` or ↑ adds one, `-` or ↓ subtracts one
 - **Reset** (bottom right) sets the total back to 0 after confirming
+
+## TV display
+
+Add `#tv` to the end of the address, e.g. `http://localhost:3000/#tv` or
+`https://boxes.yourdomain.com/#tv`. The page fills the screen with a huge total and
+hides the buttons. With `server.js` it updates live as phones add boxes. Press F11
+for full screen in most browsers.
