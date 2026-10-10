@@ -4,181 +4,57 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Shoebox Counter</title>
-<style>
-  :root {
-    --red: #c8102e;
-    --red-dark: #9b0c23;
-    --green: #1e6b3a;
-    --green-dark: #144d29;
-    --gold: #f2b632;
-    --cream: #fff8ec;
-    --ink: #2a1a12;
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; height: 100%; }
-  /* Stop phones zooming in when the buttons are tapped quickly. */
-  html { touch-action: manipulation; }
-  body {
-    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: var(--ink);
-    background:
-      radial-gradient(circle at 20% 10%, rgba(255,255,255,.08) 0 2px, transparent 3px) 0 0/60px 60px,
-      radial-gradient(circle at 70% 60%, rgba(255,255,255,.06) 0 2px, transparent 3px) 0 0/90px 90px,
-      linear-gradient(160deg, var(--red) 0%, var(--red-dark) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-  .card {
-    width: 100%;
-    max-width: 560px;
-    background: var(--cream);
-    border-radius: 24px;
-    box-shadow: 0 20px 50px rgba(0,0,0,.35);
-    padding: 28px 24px 22px;
-    text-align: center;
-    border-top: 10px solid var(--green);
-  }
-  .logo { width: 140px; height: 140px; margin: 0 auto 6px; display: block; }
-  .logo img { width: 100%; height: 100%; object-fit: contain; }
-  h1 {
-    margin: 4px 0 0;
-    font-size: clamp(1.4rem, 5vw, 2rem);
-    color: var(--red);
-    letter-spacing: .5px;
-  }
-  .sub { margin: 4px 0 20px; color: var(--green); font-weight: 600; }
-  .label {
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    font-size: .85rem;
-    font-weight: 700;
-    color: var(--green-dark);
-  }
-  .total {
-    font-size: clamp(5rem, 24vw, 9rem);
-    font-weight: 800;
-    line-height: 1;
-    color: var(--red);
-    margin: 6px 0 22px;
-    font-variant-numeric: tabular-nums;
-    transition: transform .12s ease;
-  }
-  .total.bump { transform: scale(1.08); }
-  .buttons { display: flex; gap: 14px; }
-  button {
-    flex: 1;
-    border: 0;
-    border-radius: 16px;
-    padding: 22px 10px;
-    font-size: clamp(1.2rem, 5vw, 1.6rem);
-    font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    box-shadow: 0 6px 0 rgba(0,0,0,.25);
-    transition: transform .06s ease, box-shadow .06s ease;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-  }
-  button:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
-  .add { background: var(--green); }
-  .sub-btn { background: var(--red); }
-  .add:hover { background: var(--green-dark); }
-  .sub-btn:hover { background: var(--red-dark); }
-  footer {
-    margin-top: 18px;
-    font-size: .8rem;
-    color: #8a7a6a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .reset {
-    background: none;
-    border: 0;
-    box-shadow: none;
-    color: #8a7a6a;
-    font-size: .8rem;
-    font-weight: 600;
-    padding: 4px;
-    flex: none;
-    text-decoration: underline;
-  }
-  .reset:hover { background: none; color: var(--red); }
-  .reset:active { transform: none; box-shadow: none; }
-
-  /* TV display mode: open the page with #tv on the end of the address. */
-  body.tv { padding: 3vh 3vw; overflow: hidden; }
-  body.tv .card {
-    max-width: none;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-top-width: 2vh;
-    border-radius: 4vh;
-    padding: 3vh 4vw;
-  }
-  body.tv .logo { width: 22vh; height: 22vh; margin-bottom: 1vh; }
-  body.tv h1 { font-size: 7vh; }
-  body.tv .sub { font-size: 3.6vh; margin: 0.5vh 0 3vh; }
-  body.tv .label { font-size: 3.4vh; letter-spacing: 1vh; }
-  body.tv .total { font-size: 40vh; margin: 1vh 0 0; }
-  body.tv .buttons, body.tv footer { display: none; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="card">
-    <div class="logo" id="logo">
-      <!-- Drop a file named logo.png next to this page to use your own logo. -->
-      <svg viewBox="0 0 120 120" aria-label="Shoebox gift">
-        <!-- little plane -->
-        <g transform="translate(78 10) rotate(-12)">
-          <path d="M0 10 L30 6 L36 10 L30 14 Z" fill="#1e6b3a"/>
-          <path d="M14 9 L8 0 L13 0 L22 8 Z" fill="#1e6b3a"/>
-          <path d="M14 11 L8 20 L13 20 L22 12 Z" fill="#1e6b3a"/>
-          <path d="M2 10 L-2 4 L2 4 L6 9 Z" fill="#1e6b3a"/>
-        </g>
-        <path d="M60 30 C 48 30, 30 40, 18 30" stroke="#f2b632" stroke-width="2" stroke-dasharray="4 4" fill="none"/>
-        <!-- box -->
-        <rect x="18" y="58" width="84" height="52" rx="4" fill="#c8102e"/>
-        <rect x="12" y="46" width="96" height="16" rx="4" fill="#9b0c23"/>
-        <rect x="53" y="46" width="14" height="64" fill="#1e6b3a"/>
-        <!-- bow -->
-        <path d="M60 46 C 44 30, 34 40, 44 46 Z" fill="#1e6b3a"/>
-        <path d="M60 46 C 76 30, 86 40, 76 46 Z" fill="#1e6b3a"/>
-        <circle cx="60" cy="46" r="5" fill="#f2b632"/>
-      </svg>
-    </div>
+    <!-- Tap the logo for the page menu. Drop a logo.png next to this page to use your own logo. -->
+    <div class="logo-wrap" id="logo-wrap"></div>
     <h1>Operation Christmas Child</h1>
     <p class="sub">Shoebox Packing Tracker</p>
 
-    <div class="label">Total Packed</div>
+    <div class="label"><span class="church" id="church-label"></span> Total Packed</div>
     <div class="total" id="total">0</div>
 
     <div class="buttons">
-      <button class="sub-btn" id="minus" aria-label="Subtract one box">− 1</button>
-      <button class="add" id="plus" aria-label="Add one box">+ 1</button>
+      <button class="btn btn-sub" id="minus" aria-label="Subtract one box">− 1</button>
+      <button class="btn btn-add" id="plus" aria-label="Add one box">+ 1</button>
     </div>
+
+    <form class="save" id="save-form" autocomplete="off">
+      <div class="field wide">
+        <label for="church">Church packing</label>
+        <input id="church" maxlength="80" placeholder="e.g. Grace Community Church">
+      </div>
+      <div class="field">
+        <label for="date">Date packed</label>
+        <input id="date" type="date" required>
+      </div>
+      <button class="btn btn-save" id="save" type="submit">Save to log</button>
+      <p class="status" id="status" role="status"></p>
+    </form>
 
     <footer>
       <span id="mode"></span>
-      <button class="reset" id="reset">Reset</button>
+      <button class="link-btn" id="reset" type="button">Reset to 0</button>
     </footer>
   </main>
 
+<script src="common.js"></script>
 <script>
 (function () {
   var KEY = "occ-shoebox-count";
+  var CHURCH_KEY = "occ-church";
   var totalEl = document.getElementById("total");
   var modeEl = document.getElementById("mode");
+  var churchEl = document.getElementById("church");
+  var churchLabel = document.getElementById("church-label");
+  var dateEl = document.getElementById("date");
+  var statusEl = document.getElementById("status");
   var count = 0;
   var shared = false; // true when served by server.js (count shared across devices)
+
+  setupLogoMenu(function () { return location.hash === "#tv" ? "tv" : "counter"; });
 
   function applyTvMode() {
     document.body.classList.toggle("tv", location.hash === "#tv");
@@ -186,15 +62,7 @@
   applyTvMode();
   window.addEventListener("hashchange", applyTvMode);
 
-  // Use logo.png if present, otherwise keep the built-in SVG.
-  var img = new Image();
-  img.onload = function () {
-    var logo = document.getElementById("logo");
-    logo.innerHTML = "";
-    img.alt = "Logo";
-    logo.appendChild(img);
-  };
-  img.src = "logo.png";
+  dateEl.value = todayIso();
 
   function render(n) {
     if (n !== count) {
@@ -205,33 +73,37 @@
     totalEl.textContent = n.toLocaleString();
   }
 
-  function loadLocal() {
-    try { return parseInt(localStorage.getItem(KEY), 10) || 0; } catch (e) { return 0; }
-  }
-  function saveLocal(n) {
-    try { localStorage.setItem(KEY, String(n)); } catch (e) {}
+  function renderChurch(name) {
+    churchLabel.textContent = name;
+    // Don't overwrite what someone is typing.
+    if (document.activeElement !== churchEl) churchEl.value = name;
   }
 
-  function api(method, body) {
-    return fetch("api/count", {
-      method: method,
-      headers: { "Content-Type": "application/json" },
-      body: body ? JSON.stringify(body) : undefined,
-      cache: "no-store"
-    }).then(function (r) {
-      if (!r.ok) throw new Error(r.status);
-      return r.json();
-    }).then(function (d) { return d.count; });
+  function showStatus(text, ok) {
+    statusEl.textContent = text;
+    statusEl.className = "status " + (ok ? "ok" : "err");
+  }
+
+  function loadLocal(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function saveLocal(key, v) {
+    try { localStorage.setItem(key, v); } catch (e) {}
+  }
+
+  function applyState(d) {
+    render(d.count);
+    renderChurch(d.church || "");
   }
 
   function change(body) {
     if (shared) {
-      api("POST", body).then(render).catch(function () {
+      api("POST", "api/count", body).then(applyState).catch(function () {
         modeEl.textContent = "⚠ Can't reach server";
       });
     } else {
       var n = body.set !== undefined ? body.set : Math.max(0, count + body.delta);
-      saveLocal(n);
+      saveLocal(KEY, String(n));
       render(n);
     }
   }
@@ -239,31 +111,59 @@
   document.getElementById("plus").onclick = function () { change({ delta: 1 }); };
   document.getElementById("minus").onclick = function () { change({ delta: -1 }); };
   document.getElementById("reset").onclick = function () {
-    if (confirm("Reset the total to 0?")) change({ set: 0 });
+    confirmTap(this, "Tap again to reset", function () { change({ set: 0 }); });
   };
 
-  // Keyboard: + / up arrow to add, - / down arrow to subtract.
+  // Church name is shared, so the TV shows it too.
+  var churchTimer;
+  churchEl.addEventListener("input", function () {
+    var name = churchEl.value.trim();
+    churchLabel.textContent = name;
+    clearTimeout(churchTimer);
+    churchTimer = setTimeout(function () {
+      if (shared) api("POST", "api/count", { church: name }).catch(function () {});
+      else saveLocal(CHURCH_KEY, name);
+    }, 500);
+  });
+
+  document.getElementById("save-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var church = churchEl.value.trim();
+    if (!church) { showStatus("Enter the church name first.", false); churchEl.focus(); return; }
+    if (!dateEl.value) { showStatus("Pick the date the boxes were packed.", false); return; }
+    if (!shared) { showStatus("Saving to the log needs the server running (node server.js).", false); return; }
+    api("POST", "api/log", { church: church, date: dateEl.value, total: count }).then(function (d) {
+      showStatus((d.updated ? "Updated: " : "Saved: ") + church + ", " + formatDate(dateEl.value) + ", " +
+        count.toLocaleString() + " boxes.", true);
+    }).catch(function (err) {
+      showStatus("Not saved: " + err.message, false);
+    });
+  });
+
+  // Keyboard: + / up arrow to add, - / down arrow to subtract (not while typing).
   document.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "INPUT") return;
     if (e.key === "+" || e.key === "=" || e.key === "ArrowUp") change({ delta: 1 });
     if (e.key === "-" || e.key === "_" || e.key === "ArrowDown") change({ delta: -1 });
   });
 
   // Try the shared server first; fall back to saving in this browser.
-  api("GET").then(function (n) {
+  api("GET", "api/count").then(function (d) {
     shared = true;
     modeEl.textContent = "● Live — shared across devices";
-    render(n);
+    applyState(d);
     setInterval(function () {
-      api("GET").then(function (n) {
+      api("GET", "api/count").then(function (d) {
         modeEl.textContent = "● Live — shared across devices";
-        render(n);
+        applyState(d);
       }).catch(function () {
         modeEl.textContent = "⚠ Can't reach server";
       });
     }, 2000);
   }).catch(function () {
     modeEl.textContent = "Saved on this device";
-    render(loadLocal());
+    render(parseInt(loadLocal(KEY), 10) || 0);
+    renderChurch(loadLocal(CHURCH_KEY) || "");
   });
 })();
 </script>

@@ -1,2 +1,4 @@
 count.json
+log.json
+*.tmp
 node_modules/

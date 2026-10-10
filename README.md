@@ -24,10 +24,30 @@ Use a different port with `PORT=8080 node server.js`.
 
 Put an image named `logo.png` in this folder and it replaces the built-in gift-box graphic.
 
+## Pages
+
+Tap the gift-box logo on any page to open the menu:
+
+- **Counter** – +1 / −1 buttons, the church name, and **Save to log**
+- **TV display** – full-screen total (same as adding `#tv` to the address)
+- **Packing log** – every saved total with its date and church
+
+## Church name and the packing log
+
+Type the church in **Church packing** on the counter page. It shows as
+"*Church Name* Total Packed" on phones and the TV.
+
+Pick the **Date packed** (defaults to today) and tap **Save to log**. Saving the same
+church and date again updates that row instead of adding a duplicate. Delete a row on
+the Packing log page (tap Delete twice).
+
+The log needs `server.js`. It's stored in `log.json`; the current total and church
+are in `count.json`.
+
 ## Shortcuts
 
 - `+` or ↑ adds one, `-` or ↓ subtracts one
-- **Reset** (bottom right) sets the total back to 0 after confirming
+- **Reset to 0** (bottom right) sets the total back to 0 after a second tap
 
 ## TV display
 

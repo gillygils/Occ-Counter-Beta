@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Packing Log</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card log">
+    <!-- Tap the logo for the page menu. -->
+    <div class="logo-wrap" id="logo-wrap"></div>
+    <h1>Operation Christmas Child</h1>
+    <p class="sub">Packing Log</p>
+
+    <div id="content"><p class="log-empty">Loading…</p></div>
+
+    <footer>
+      <span id="mode"></span>
+      <span>Saving the same church and date again updates that row.</span>
+    </footer>
+  </main>
+
+<script src="common.js"></script>
+<script>
+(function () {
+  var content = document.getElementById("content");
+  var modeEl = document.getElementById("mode");
+
+  setupLogoMenu(function () { return "log"; });
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  }
+
+  function render(entries) {
+    content.innerHTML = "";
+    if (!entries.length) {
+      content.appendChild(el("p", "log-empty",
+        "Nothing logged yet. On the counter page, enter the church and date, then tap Save to log."));
+      return;
+    }
+    entries.sort(function (a, b) {
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : a.church.localeCompare(b.church);
+    });
+    var wrap = el("div", "table-wrap");
+    var table = el("table");
+    var head = el("tr");
+    head.appendChild(el("th", "", "Date"));
+    head.appendChild(el("th", "", "Church"));
+    head.appendChild(el("th", "num", "Total"));
+    head.appendChild(el("th", "", ""));
+    var thead = el("thead"); thead.appendChild(head); table.appendChild(thead);
+    var tbody = el("tbody");
+    entries.forEach(function (e) {
+      var tr = el("tr");
+      tr.appendChild(el("td", "date", formatDate(e.date, true)));
+      tr.appendChild(el("td", "", e.church));
+      tr.appendChild(el("td", "num", e.total.toLocaleString()));
+      var td = el("td", "del");
+      var del = el("button", "link-btn", "Delete");
+      del.type = "button";
+      del.onclick = function () {
+        confirmTap(del, "Tap again", function () {
+          api("POST", "api/log/delete", { id: e.id }).then(load).catch(function (err) {
+            modeEl.textContent = "⚠ " + err.message;
+          });
+        });
+      };
+      td.appendChild(del);
+      tr.appendChild(td);
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    content.appendChild(wrap);
+  }
+
+  function load() {
+    return api("GET", "api/log").then(function (d) {
+      modeEl.textContent = "● Live";
+      render(d.entries);
+    });
+  }
+
+  load().catch(function () {
+    content.innerHTML = "";
+    content.appendChild(el("p", "log-empty",
+      "The log needs the server running (node server.js). Open this page from the server's address."));
+  });
+})();
+</script>
+</body>
+</html>
