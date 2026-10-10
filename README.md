@@ -30,8 +30,8 @@ Tap the gift-box logo on any page to open the menu:
 
 - **Counter** – +1 / −1 buttons, the church name, and **Save to log**
 - **TV display** – full-screen total (same as adding `#tv` to the address)
-- **Packing log** – this year's saved totals with their date and church, a total line,
-  and a filter to show one church
+- **Packing log** – saved totals with their date and church and a total line. Opens on
+  this year; pick another year or one church from the dropdowns
 - **Packing history** – a total for every year; tap a year to see each church's total
 
 ## Church name and the packing log

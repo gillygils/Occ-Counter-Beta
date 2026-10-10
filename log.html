@@ -13,9 +13,9 @@
     <h1>Operation Christmas Child</h1>
     <p class="sub" id="sub">Packing Log</p>
 
-    <div class="filter" id="filter" hidden>
-      <label for="church-filter">Show</label>
-      <select id="church-filter"></select>
+    <div class="filter">
+      <span class="pair"><label for="year-filter">Year</label> <select id="year-filter"></select></span>
+      <span class="pair"><label for="church-filter">Show</label> <select id="church-filter"></select></span>
     </div>
 
     <div id="content"><p class="log-empty">Loading…</p></div>
@@ -29,17 +29,29 @@
 <script src="common.js"></script>
 <script>
 (function () {
-  var YEAR = String(new Date().getFullYear());
+  var THIS_YEAR = String(new Date().getFullYear());
   var content = document.getElementById("content");
   var modeEl = document.getElementById("mode");
-  var filterWrap = document.getElementById("filter");
+  var yearEl = document.getElementById("year-filter");
   var filterEl = document.getElementById("church-filter");
   var allEntries = [];
-
-  document.getElementById("sub").textContent = "Packing Log " + YEAR;
   setupLogoMenu(function () { return "log"; });
 
-  // Keep the church filter's options in step with this year's churches.
+  // Every year in the log, plus this year, newest first. Opens on this year.
+  function fillYears() {
+    var chosen = yearEl.value || THIS_YEAR;
+    var years = [THIS_YEAR];
+    allEntries.forEach(function (e) {
+      var y = e.date.slice(0, 4);
+      if (years.indexOf(y) < 0) years.push(y);
+    });
+    years.sort(function (a, b) { return b - a; });
+    yearEl.innerHTML = "";
+    years.forEach(function (y) { yearEl.appendChild(new Option(y, y)); });
+    yearEl.value = years.indexOf(chosen) >= 0 ? chosen : THIS_YEAR;
+  }
+
+  // Keep the church filter's options in step with the chosen year's churches.
   function fillFilter(entries) {
     var chosen = filterEl.value;
     var churches = [];
@@ -49,10 +61,12 @@
     filterEl.appendChild(new Option("All churches", ""));
     churches.forEach(function (c) { filterEl.appendChild(new Option(c, c)); });
     filterEl.value = churches.indexOf(chosen) >= 0 ? chosen : "";
-    filterWrap.hidden = churches.length < 2;
   }
 
   function render() {
+    fillYears();
+    var YEAR = yearEl.value;
+    document.getElementById("sub").textContent = "Packing Log " + YEAR;
     var thisYear = allEntries.filter(function (e) { return e.date.slice(0, 4) === YEAR; });
     fillFilter(thisYear);
     var church = filterEl.value;
@@ -117,6 +131,7 @@
   }
 
   filterEl.addEventListener("change", render);
+  yearEl.addEventListener("change", function () { filterEl.value = ""; render(); });
 
   function load() {
     return api("GET", "api/log").then(function (d) {

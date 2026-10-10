@@ -232,6 +232,7 @@ td.del { text-align: right; width: 1%; white-space: nowrap; }
   font: inherit; font-size: 1rem; padding: 10px 12px; border-radius: 10px;
   border: 2px solid var(--cream-dark); background: #fff; color: var(--ink); max-width: 100%;
 }
+.filter .pair { display: flex; align-items: center; gap: 8px; min-width: 0; max-width: 100%; }
 .filter select:focus { outline: none; border-color: var(--green); }
 tfoot td { border-bottom: 0; border-top: 3px solid var(--green); font-weight: 800; color: var(--green-dark); padding-top: 14px; }
 tfoot td.num { font-size: 1.5rem; }
