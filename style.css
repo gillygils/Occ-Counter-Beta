@@ -201,7 +201,8 @@ body.tv .logo { width: 22vh; height: 22vh; margin-bottom: 1vh; }
 body.tv h1 { font-size: 7vh; }
 body.tv .sub { font-size: 3.6vh; margin: 0.5vh 0 3vh; }
 body.tv .label { font-size: 5vh; }
-body.tv .total { font-size: 40vh; margin: 1vh 0 0; }
+body.tv .label .church { display: block; font-size: 6vh; margin-bottom: 0.5vh; }
+body.tv .total { font-size: 35vh; margin: 1vh 0 0; }
 body.tv .buttons, body.tv .save, body.tv footer { display: none; }
 
 /* Log page */
