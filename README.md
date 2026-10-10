@@ -47,7 +47,7 @@ are in `count.json`.
 ## Shortcuts
 
 - `+` or ↑ adds one, `-` or ↓ subtracts one
-- **Reset to 0** (bottom right) sets the total back to 0 after a second tap
+- **Reset to 0** (bottom right) sets the total back to 0 and clears the church name, after a second tap
 
 ## TV display
 

@@ -110,12 +110,22 @@
 
   document.getElementById("plus").onclick = function () { change({ delta: 1 }); };
   document.getElementById("minus").onclick = function () { change({ delta: -1 }); };
-  document.getElementById("reset").onclick = function () {
-    confirmTap(this, "Tap again to reset", function () { change({ set: 0 }); });
-  };
-
   // Church name is shared, so the TV shows it too.
   var churchTimer;
+
+  // Reset clears the total and the church name, ready for the next church.
+  document.getElementById("reset").onclick = function () {
+    confirmTap(this, "Tap again to reset", function () {
+      change({ set: 0 });
+      clearTimeout(churchTimer);
+      churchEl.value = "";
+      churchLabel.textContent = "";
+      statusEl.textContent = "";
+      if (shared) api("POST", "api/count", { church: "" }).catch(function () {});
+      else saveLocal(CHURCH_KEY, "");
+    });
+  };
+
   churchEl.addEventListener("input", function () {
     var name = churchEl.value.trim();
     churchLabel.textContent = name;
