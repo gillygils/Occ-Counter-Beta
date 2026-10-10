@@ -10,6 +10,7 @@
   --muted: #8a7a6a;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { margin: 0; min-height: 100%; }
 /* Stop phones zooming in when the buttons are tapped quickly. */
 html { touch-action: manipulation; height: 100%; }
@@ -123,18 +124,8 @@ h1 {
 .btn-add:hover { background: var(--green-dark); }
 .btn-sub:hover { background: var(--red-dark); }
 
-/* Save-to-log form */
-.save {
-  margin-top: 26px;
-  padding-top: 20px;
-  border-top: 2px dashed var(--cream-dark);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  text-align: left;
-}
+/* Form fields */
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-.field.wide { grid-column: 1 / -1; }
 .field label { font-size: .8rem; font-weight: 700; color: var(--green-dark); }
 .field input {
   font: inherit;
@@ -148,16 +139,6 @@ h1 {
   min-width: 0;
 }
 .field input:focus { outline: none; border-color: var(--green); }
-.btn-save {
-  background: var(--gold);
-  color: var(--ink);
-  font-size: 1.1rem;
-  padding: 14px 10px;
-  box-shadow: 0 4px 0 rgba(0,0,0,.2);
-  align-self: end;
-}
-.btn-save:hover { background: #e6a91f; }
-.status { grid-column: 1 / -1; margin: 0; min-height: 1.2em; font-size: .9rem; font-weight: 600; }
 .status.ok { color: var(--green); }
 .status.err { color: var(--red); }
 
@@ -184,26 +165,27 @@ footer {
 .link-btn:hover { color: var(--red); }
 .link-btn.armed { color: var(--red); }
 
-/* TV display mode: open the counter with #tv on the end of the address. */
+/* TV display: index.html#tv. The brick wall canvas sits behind the card. */
+.wall { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 body.tv { padding: 3vh 3vw; overflow: hidden; height: 100%; }
 body.tv .card {
-  max-width: none;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-top-width: 2vh;
+  position: relative;
+  z-index: 1;
+  width: auto;
+  max-width: min(1200px, 86vw);
+  background: rgba(255, 248, 236, 0.95);
+  border-top-width: 1.6vh;
   border-radius: 4vh;
-  padding: 3vh 4vw;
+  padding: 3vh 6vw 4vh;
 }
-body.tv .logo { width: 22vh; height: 22vh; margin-bottom: 1vh; }
-body.tv h1 { font-size: 7vh; }
-body.tv .sub { font-size: 3.6vh; margin: 0.5vh 0 3vh; }
-body.tv .label { font-size: 5vh; }
+body.tv .logo { width: 14vh; height: 14vh; margin-bottom: 0.5vh; }
+body.tv h1 { font-size: 5.5vh; }
+body.tv .sub { font-size: 3vh; margin: 0.5vh 0 2.5vh; }
+body.tv .label { font-size: 4.5vh; }
 body.tv .label .church { display: block; font-size: 6vh; margin-bottom: 0.5vh; }
-body.tv .total { font-size: 35vh; margin: 1vh 0 0; }
-body.tv .buttons, body.tv .save, body.tv footer { display: none; }
+body.tv .total { font-size: 28vh; margin: 1vh 0 0; }
+.tv-goal { margin: 1vh 0 0; font-size: 3.6vh; font-weight: 800; color: var(--green-dark); }
+body.tv #screen-tvpick { min-width: min(560px, 80vw); }
 
 /* Log page */
 .card.log { max-width: 720px; }
@@ -251,3 +233,82 @@ tfoot td.num { font-size: 1.5rem; }
 .back:hover { text-decoration: underline; }
 .year-title { margin: 0 0 4px; font-size: 1.6rem; color: var(--green-dark); }
 .hint { margin: 0 0 12px; color: var(--muted); font-size: .85rem; }
+
+/* Screens: sign in, choose, setup, counter */
+.stack { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.field select {
+  font: inherit; font-size: 1rem; padding: 12px; border: 2px solid var(--cream-dark);
+  border-radius: 10px; background: #fff; color: var(--ink); width: 100%;
+}
+.field select:focus { outline: none; border-color: var(--green); }
+.btn-primary { background: var(--green); font-size: 1.15rem; padding: 16px 10px; }
+.btn-primary:hover { background: var(--green-dark); }
+.btn-secondary {
+  background: var(--gold); color: var(--ink); font-size: 1.1rem; padding: 14px 10px;
+  box-shadow: 0 4px 0 rgba(0,0,0,.2); text-align: center; text-decoration: none; display: block;
+}
+.btn-secondary:hover { background: #e6a91f; }
+.btn.small { flex: none; padding: 10px 16px; font-size: 1rem; }
+.status { margin: 0; min-height: 1.2em; font-size: .9rem; font-weight: 600; text-align: center; }
+.hint { margin: 12px 0 0; color: var(--muted); font-size: .85rem; }
+.hint.left { text-align: left; margin: 0; }
+.switch { margin: 14px 0 0; font-size: .9rem; color: var(--muted); }
+.link-btn.strong { color: var(--green-dark); font-size: .9rem; }
+.screen-title { margin: 0 0 14px; font-size: 1.5rem; color: var(--green-dark); text-wrap: balance; }
+.step { margin: 0 0 10px; font-size: .75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.session-card {
+  margin-bottom: 16px; padding: 14px; border-radius: 14px; background: #fff;
+  border: 2px solid var(--cream-dark);
+}
+.session-count { font-size: 2rem; font-weight: 800; color: var(--red); font-variant-numeric: tabular-nums; }
+.session-meta { font-size: .85rem; color: var(--muted); }
+
+.goal-line { margin: -10px 0 20px; }
+.goal-line p { margin: 6px 0 0; font-size: .9rem; font-weight: 700; color: var(--green-dark); }
+.progress { height: 10px; border-radius: 99px; background: var(--cream-dark); overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--gold)); transition: width .3s ease; }
+.goal-edit { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.goal-edit[hidden] { display: none; }
+.goal-edit label { font-size: .85rem; font-weight: 700; color: var(--green-dark); }
+.goal-edit input {
+  font: inherit; font-size: 1rem; padding: 10px; width: 7em; border-radius: 10px;
+  border: 2px solid var(--cream-dark); background: #fff; color: var(--ink);
+}
+#counter-status { margin-top: 10px; }
+.footer-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+@media (max-width: 420px) {
+  #screen-counter footer { flex-direction: column; }
+}
+
+/* Celebrations */
+.fx-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.milestone-banner {
+  position: fixed; left: 50%; top: 18%; z-index: 55;
+  transform: translate(-50%, 0) scale(.6); opacity: 0;
+  background: var(--gold); color: var(--ink); font-weight: 800;
+  font-size: clamp(1.6rem, 6vw, 4rem); padding: .3em .9em; border-radius: 99px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.3); white-space: nowrap; pointer-events: none;
+  animation: banner-in .35s cubic-bezier(.2,1.6,.4,1) forwards;
+}
+.milestone-banner.out { transition: opacity .5s, transform .5s; opacity: 0 !important; transform: translate(-50%, -20px) scale(1); }
+@keyframes banner-in { to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+.goal-overlay {
+  position: fixed; inset: 0; z-index: 60; background: #000;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .8s ease; cursor: pointer;
+}
+.goal-overlay.in { opacity: 1; }
+.goal-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.goal-text { position: relative; text-align: center; padding: 16px; }
+.goal-kicker { color: #fff; font-weight: 700; font-size: clamp(1.1rem, 4vw, 3rem); letter-spacing: .05em; text-wrap: balance; }
+.goal-number {
+  font-size: clamp(6rem, 30vw, 32vh); font-weight: 900; line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(180deg, #fff3b0 0%, #f2b632 45%, #b8860b 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 30px rgba(242,182,50,.55));
+}
+@media (prefers-reduced-motion: reduce) {
+  .milestone-banner { animation: none; opacity: 1; transform: translate(-50%, 0); }
+  .progress span, .goal-overlay { transition: none; }
+}

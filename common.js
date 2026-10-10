@@ -42,6 +42,7 @@
     menu.hidden = true;
     PAGES.forEach(function (p) {
       var a = document.createElement("a");
+      a.id = "menu-" + p.id;
       a.href = p.href;
       a.textContent = p.label;
       a.dataset.page = p.id;
@@ -73,15 +74,42 @@
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") setOpen(false); });
   };
 
+  // Point a menu item somewhere else, e.g. the TV link at this church's screen.
+  window.setMenuHref = function (id, href) {
+    var a = document.getElementById("menu-" + id);
+    if (a) a.href = href;
+  };
+
+  // Sign-in token for this device. Kept in localStorage so closing the tab
+  // doesn't sign the church out; the server decides when it expires.
+  var TOKEN_KEY = "occ-token";
+  var memoryToken = null;
+  window.getToken = function () {
+    try { return localStorage.getItem(TOKEN_KEY) || memoryToken; } catch (e) { return memoryToken; }
+  };
+  window.setToken = function (t) {
+    memoryToken = t;
+    try { if (t) localStorage.setItem(TOKEN_KEY, t); else localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+  };
+
+  // Calls server.js. Errors carry .status and .signedOut from the server's reply.
   window.api = function (method, path, body) {
+    var headers = { "Content-Type": "application/json" };
+    var token = getToken();
+    if (token) headers.Authorization = "Bearer " + token;
     return fetch(path, {
       method: method,
-      headers: { "Content-Type": "application/json" },
+      headers: headers,
       body: body ? JSON.stringify(body) : undefined,
       cache: "no-store"
     }).then(function (r) {
       return r.json().catch(function () { return {}; }).then(function (d) {
-        if (!r.ok) throw new Error(d.error || ("Server error " + r.status));
+        if (!r.ok) {
+          var err = new Error(d.error || ("Server error " + r.status));
+          err.status = r.status;
+          err.signedOut = !!d.signedOut;
+          throw err;
+        }
         return d;
       });
     });

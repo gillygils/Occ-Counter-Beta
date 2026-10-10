@@ -7,174 +7,476 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <canvas id="wall" class="wall" hidden></canvas>
   <main class="card">
     <!-- Tap the logo for the page menu. Drop a logo.png next to this page to use your own logo. -->
     <div class="logo-wrap" id="logo-wrap"></div>
     <h1>Operation Christmas Child</h1>
-    <p class="sub">Shoebox Packing Tracker</p>
+    <p class="sub" id="sub">Shoebox Packing Tracker</p>
 
-    <div class="label"><span class="church" id="church-label"></span> Total Packed</div>
-    <div class="total" id="total">0</div>
+    <!-- Loading -->
+    <section class="screen" id="screen-loading">
+      <p class="hint" id="loading-text">Loading…</p>
+    </section>
 
-    <div class="buttons">
-      <button class="btn btn-sub" id="minus" aria-label="Subtract one box">− 1</button>
-      <button class="btn btn-add" id="plus" aria-label="Add one box">+ 1</button>
-    </div>
+    <!-- Sign in with the church's PIN -->
+    <section class="screen" id="screen-signin" hidden>
+      <form class="stack" id="signin-form" autocomplete="off">
+        <div class="field">
+          <label for="signin-church">Church</label>
+          <select id="signin-church" required></select>
+        </div>
+        <div class="field">
+          <label for="signin-pin">PIN</label>
+          <input id="signin-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" required>
+        </div>
+        <button class="btn btn-primary" type="submit">Sign in</button>
+        <p class="status" id="signin-status" role="status"></p>
+      </form>
+      <p class="switch">New church? <button class="link-btn strong" id="to-signup" type="button">Create an account</button></p>
+    </section>
 
-    <form class="save" id="save-form" autocomplete="off">
-      <div class="field wide">
-        <label for="church">Church packing</label>
-        <input id="church" maxlength="80" placeholder="e.g. Grace Community Church">
+    <!-- Create a church account -->
+    <section class="screen" id="screen-signup" hidden>
+      <form class="stack" id="signup-form" autocomplete="off">
+        <div class="field">
+          <label for="signup-name">Church name</label>
+          <input id="signup-name" maxlength="80" placeholder="e.g. Grace Community Church" required>
+        </div>
+        <div class="field">
+          <label for="signup-pin">Choose a PIN (4 to 8 numbers)</label>
+          <input id="signup-pin" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required>
+        </div>
+        <div class="field">
+          <label for="signup-pin2">Type the PIN again</label>
+          <input id="signup-pin2" type="password" inputmode="numeric" pattern="[0-9]*" minlength="4" maxlength="8" required>
+        </div>
+        <p class="hint left">Share the PIN with your church's packers. Anyone with it can use your counter.</p>
+        <button class="btn btn-primary" type="submit">Create account</button>
+        <p class="status" id="signup-status" role="status"></p>
+      </form>
+      <p class="switch">Already set up? <button class="link-btn strong" id="to-signin" type="button">Sign in</button></p>
+    </section>
+
+    <!-- New or continue -->
+    <section class="screen" id="screen-choose" hidden>
+      <h2 class="screen-title" id="choose-title"></h2>
+      <div class="session-card" id="choose-session" hidden></div>
+      <div class="stack">
+        <button class="btn btn-primary" id="btn-continue" type="button" hidden>Continue this session</button>
+        <button class="btn btn-secondary" id="btn-new" type="button">Start a new session</button>
       </div>
-      <div class="field">
-        <label for="date">Date packed</label>
-        <input id="date" type="date" required>
-      </div>
-      <button class="btn btn-save" id="save" type="submit">Save to log</button>
-      <p class="status" id="status" role="status"></p>
-    </form>
+      <p class="hint" id="choose-hint">This device remembers your choice for 72 hours.</p>
+      <p class="status" id="choose-status" role="status"></p>
+      <p class="switch"><button class="link-btn" id="choose-signout" type="button">Not your church? Sign out</button></p>
+    </section>
 
-    <footer>
-      <span id="mode"></span>
-      <button class="link-btn" id="reset" type="button">Reset to 0</button>
-    </footer>
+    <!-- New session walkthrough -->
+    <section class="screen" id="screen-setup" hidden>
+      <p class="step" id="setup-step"></p>
+      <form class="stack" id="setup-name-form" autocomplete="off">
+        <div class="field">
+          <label for="setup-name">What church is packing?</label>
+          <input id="setup-name" maxlength="80" required>
+        </div>
+        <p class="hint left">This is the name your boxes are sorted and stored under.</p>
+        <button class="btn btn-primary" type="submit">Next</button>
+      </form>
+      <form class="stack" id="setup-goal-form" autocomplete="off" hidden>
+        <div class="field">
+          <label for="setup-goal">Packing goal: how many boxes?</label>
+          <input id="setup-goal" type="number" inputmode="numeric" min="1" max="100000" step="1" required>
+        </div>
+        <p class="hint left">The TV fills a wall of shoeboxes as you get closer, and celebrates when you hit it.</p>
+        <button class="btn btn-primary" type="submit">Start packing</button>
+        <button class="link-btn" id="setup-back" type="button">Back</button>
+      </form>
+      <p class="status" id="setup-status" role="status"></p>
+    </section>
+
+    <!-- The counter -->
+    <section class="screen" id="screen-counter" hidden>
+      <div class="label"><span class="church" id="church-label"></span> Total Packed</div>
+      <div class="total" id="total">0</div>
+      <div class="goal-line">
+        <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+        <p id="goal-text"></p>
+      </div>
+      <div class="buttons">
+        <button class="btn btn-sub" id="minus" aria-label="Subtract one box">− 1</button>
+        <button class="btn btn-add" id="plus" aria-label="Add one box">+ 1</button>
+      </div>
+      <form class="goal-edit" id="goal-form" hidden autocomplete="off">
+        <label for="goal-input">New goal</label>
+        <input id="goal-input" type="number" inputmode="numeric" min="1" max="100000" step="1" required>
+        <button class="btn btn-secondary small" type="submit">Save</button>
+        <button class="link-btn" id="goal-cancel" type="button">Cancel</button>
+      </form>
+      <p class="status" id="counter-status" role="status"></p>
+      <footer>
+        <span id="mode"></span>
+        <span class="footer-actions">
+          <button class="link-btn" id="edit-goal" type="button">Change goal</button>
+          <button class="link-btn" id="finish" type="button">Finish session</button>
+          <button class="link-btn" id="signout" type="button">Sign out</button>
+        </span>
+      </footer>
+    </section>
+
+    <!-- TV: pick a church -->
+    <section class="screen" id="screen-tvpick" hidden>
+      <h2 class="screen-title">Which church is on this TV?</h2>
+      <div class="stack" id="tv-list"></div>
+      <p class="hint" id="tv-pick-hint"></p>
+    </section>
+
+    <!-- TV: one church's total -->
+    <section class="screen" id="screen-tv" hidden>
+      <div class="label"><span class="church" id="tv-church"></span> Total Packed</div>
+      <div class="total" id="tv-total">0</div>
+      <p class="tv-goal" id="tv-goal"></p>
+    </section>
   </main>
 
 <script src="common.js"></script>
+<script src="effects.js"></script>
 <script>
 (function () {
-  var KEY = "occ-shoebox-count";
-  var CHURCH_KEY = "occ-church";
-  var totalEl = document.getElementById("total");
-  var modeEl = document.getElementById("mode");
-  var churchEl = document.getElementById("church");
-  var churchLabel = document.getElementById("church-label");
-  var dateEl = document.getElementById("date");
-  var statusEl = document.getElementById("status");
-  var count = 0;
-  var shared = false; // true when served by server.js (count shared across devices)
+  var $ = function (id) { return document.getElementById(id); };
+  var TV_KEY = "occ-tv-church";
+  var isTv = location.hash.indexOf("#tv") === 0;
+  var me = null;          // { church, session, decided }
+  var pollTimer = null;
 
-  setupLogoMenu(function () { return location.hash === "#tv" ? "tv" : "counter"; });
+  setupLogoMenu(function () { return isTv ? "tv" : "counter"; });
+  // Moving between the counter and TV views, or between TV churches, starts fresh.
+  addEventListener("hashchange", function () { location.reload(); });
 
-  function applyTvMode() {
-    document.body.classList.toggle("tv", location.hash === "#tv");
+  function show(id) {
+    clearInterval(pollTimer);
+    Array.prototype.forEach.call(document.querySelectorAll(".screen"), function (s) { s.hidden = s.id !== id; });
   }
-  applyTvMode();
-  window.addEventListener("hashchange", applyTvMode);
+  function status(id, text, ok) {
+    $(id).textContent = text || "";
+    $(id).className = "status " + (ok ? "ok" : "err");
+  }
+  function boxes(n) { return n.toLocaleString() + (n === 1 ? " box" : " boxes"); }
+  function setSub(text) { $("sub").textContent = text; }
+  function signedOut(err) {
+    if (err && err.signedOut) { setToken(null); showSignin("Please sign in again."); return true; }
+    return false;
+  }
 
-  dateEl.value = todayIso();
-
-  function render(n) {
-    if (n !== count) {
-      totalEl.classList.add("bump");
-      setTimeout(function () { totalEl.classList.remove("bump"); }, 120);
+  // ---------- Celebrations: confetti every 50 boxes, fireworks at the goal ----------
+  var MILESTONE = 50;
+  var seen = { sessionId: null, milestone: 0, goal: 0, goalDone: false };
+  function celebrate(session, churchName) {
+    if (!session) return;
+    var n = session.count;
+    if (seen.sessionId !== session.id) {
+      // First look at this session: remember where it is, don't replay old milestones.
+      seen = { sessionId: session.id, milestone: Math.floor(n / MILESTONE) * MILESTONE, goal: session.goal, goalDone: n >= session.goal };
+      return;
     }
-    count = n;
-    totalEl.textContent = n.toLocaleString();
+    if (session.goal !== seen.goal) { seen.goal = session.goal; seen.goalDone = n >= session.goal; }
+    var m = Math.floor(n / MILESTONE) * MILESTONE;
+    if (!seen.goalDone && n >= session.goal) {
+      seen.goalDone = true;
+      seen.milestone = Math.max(seen.milestone, m);
+      goalCelebration(session.goal, churchName);
+      return;
+    }
+    if (m > seen.milestone) { seen.milestone = m; confetti(boxes(m) + "!"); }
   }
 
-  function renderChurch(name) {
-    churchLabel.textContent = name;
-    // Don't overwrite what someone is typing.
-    if (document.activeElement !== churchEl) churchEl.value = name;
+  // Ignore replies that are older than one already shown (a slow poll after a fast tap).
+  var seq = 0, shownSeq = 0;
+  function fresh(mySeq) { if (mySeq < shownSeq) return false; shownSeq = mySeq; return true; }
+
+  var lastShown = null;
+  function bump(el, n) {
+    if (lastShown !== null && n !== lastShown) {
+      el.classList.add("bump");
+      setTimeout(function () { el.classList.remove("bump"); }, 120);
+    }
+    lastShown = n;
+    el.textContent = n.toLocaleString();
   }
 
-  function showStatus(text, ok) {
-    statusEl.textContent = text;
-    statusEl.className = "status " + (ok ? "ok" : "err");
+  // ---------- Phone: sign in / sign up ----------
+  function showSignin(message) {
+    show("screen-signin");
+    setSub("Sign in to your church's counter");
+    status("signin-status", message || "", false);
+    $("signin-pin").value = "";
+    api("GET", "api/churches").then(function (d) {
+      if (!d.churches.length) { showSignup(); return; }
+      var sel = $("signin-church");
+      sel.innerHTML = "";
+      sel.appendChild(new Option("Choose your church", ""));
+      d.churches.forEach(function (c) { sel.appendChild(new Option(c.name, c.id)); });
+    }).catch(function () { status("signin-status", "Can't reach the server.", false); });
   }
 
-  function loadLocal(key) {
-    try { return localStorage.getItem(key); } catch (e) { return null; }
-  }
-  function saveLocal(key, v) {
-    try { localStorage.setItem(key, v); } catch (e) {}
-  }
+  $("signin-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!$("signin-church").value) { status("signin-status", "Pick your church from the list.", false); return; }
+    api("POST", "api/login", { churchId: $("signin-church").value, pin: $("signin-pin").value }).then(function (d) {
+      setToken(d.token);
+      me = d;
+      showChoose();
+    }).catch(function (err) { status("signin-status", err.message, false); $("signin-pin").select(); });
+  });
 
-  function applyState(d) {
-    render(d.count);
-    renderChurch(d.church || "");
+  function showSignup() {
+    show("screen-signup");
+    setSub("Set up your church");
+    status("signup-status", "");
   }
+  $("to-signup").onclick = showSignup;
+  $("to-signin").onclick = function () { showSignin(); };
 
-  function change(body) {
-    if (shared) {
-      api("POST", "api/count", body).then(applyState).catch(function () {
-        modeEl.textContent = "⚠ Can't reach server";
-      });
+  $("signup-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var pin = $("signup-pin").value;
+    if (!/^\d{4,8}$/.test(pin)) { status("signup-status", "The PIN must be 4 to 8 numbers.", false); return; }
+    if (pin !== $("signup-pin2").value) { status("signup-status", "The two PINs don't match.", false); return; }
+    api("POST", "api/signup", { name: $("signup-name").value, pin: pin }).then(function (d) {
+      setToken(d.token);
+      me = d;
+      showChoose();
+    }).catch(function (err) { status("signup-status", err.message, false); });
+  });
+
+  // ---------- Phone: new or continue ----------
+  function showChoose() {
+    show("screen-choose");
+    setSub("Welcome");
+    status("choose-status", "");
+    $("choose-title").textContent = me.church.name;
+    var s = me.session;
+    $("choose-session").hidden = !s;
+    $("btn-continue").hidden = !s;
+    if (s) {
+      $("choose-session").innerHTML = "";
+      $("choose-session").appendChild(el("div", "session-count", boxes(s.count)));
+      $("choose-session").appendChild(el("div", "session-meta",
+        "of a " + s.goal.toLocaleString() + " box goal · started " + formatDate(s.date)));
+      $("btn-new").textContent = "Start a new session";
     } else {
-      var n = body.set !== undefined ? body.set : Math.max(0, count + body.delta);
-      saveLocal(KEY, String(n));
-      render(n);
+      $("btn-new").textContent = "Start packing";
     }
+    $("choose-hint").textContent = s
+      ? "Starting new keeps this session's boxes in the log. This device remembers your choice for 72 hours."
+      : "This device remembers your choice for 72 hours.";
   }
 
-  document.getElementById("plus").onclick = function () { change({ delta: 1 }); };
-  document.getElementById("minus").onclick = function () { change({ delta: -1 }); };
-  // Church name is shared, so the TV shows it too.
-  var churchTimer;
+  $("btn-continue").onclick = function () {
+    api("POST", "api/session/continue").then(function (d) { me = d; showCounter(); })
+      .catch(function (err) { if (!signedOut(err)) status("choose-status", err.message, false); });
+  };
+  $("btn-new").onclick = function () { showSetup(); };
+  $("choose-signout").onclick = function () { signOut(); };
 
-  // Reset clears the total and the church name, ready for the next church.
-  document.getElementById("reset").onclick = function () {
-    confirmTap(this, "Tap again to reset", function () {
-      change({ set: 0 });
-      clearTimeout(churchTimer);
-      churchEl.value = "";
-      churchLabel.textContent = "";
-      statusEl.textContent = "";
-      if (shared) api("POST", "api/count", { church: "" }).catch(function () {});
-      else saveLocal(CHURCH_KEY, "");
+  // ---------- Phone: new session walkthrough ----------
+  function showSetup() {
+    show("screen-setup");
+    setSub("New packing session");
+    status("setup-status", "");
+    $("setup-name").value = me.church.name;
+    $("setup-goal").value = me.session ? me.session.goal : "";
+    $("setup-name-form").hidden = false;
+    $("setup-goal-form").hidden = true;
+    $("setup-step").textContent = "Step 1 of 2";
+    $("setup-name").focus();
+  }
+  $("setup-name-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!$("setup-name").value.trim()) return;
+    $("setup-name-form").hidden = true;
+    $("setup-goal-form").hidden = false;
+    $("setup-step").textContent = "Step 2 of 2";
+    $("setup-goal").focus();
+  });
+  $("setup-back").onclick = function () {
+    $("setup-name-form").hidden = false;
+    $("setup-goal-form").hidden = true;
+    $("setup-step").textContent = "Step 1 of 2";
+  };
+  $("setup-goal-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var goal = parseInt($("setup-goal").value, 10);
+    api("POST", "api/session/start", { name: $("setup-name").value, goal: goal, date: todayIso() }).then(function (d) {
+      me = d;
+      showCounter();
+    }).catch(function (err) { if (!signedOut(err)) status("setup-status", err.message, false); });
+  });
+
+  // ---------- Phone: the counter ----------
+  function renderCounter(d, mySeq) {
+    if (mySeq !== undefined && !fresh(mySeq)) return;
+    me = d;
+    if (!d.session) { showChoose(); return; } // finished elsewhere or expired
+    var s = d.session;
+    $("church-label").textContent = d.church.name;
+    bump($("total"), s.count);
+    $("progress-bar").style.width = Math.min(100, (s.count / s.goal) * 100) + "%";
+    $("goal-text").textContent = s.count >= s.goal
+      ? "Goal of " + s.goal.toLocaleString() + " reached!"
+      : (s.goal - s.count).toLocaleString() + " to go · goal " + s.goal.toLocaleString();
+    celebrate(s, d.church.name);
+  }
+
+  function showCounter() {
+    show("screen-counter");
+    setSub("Shoebox Packing Tracker");
+    status("counter-status", "");
+    lastShown = null;
+    setMenuHref("tv", "index.html#tv-" + me.church.id);
+    renderCounter(me);
+    $("mode").textContent = "● Live · saving to the log";
+    pollTimer = setInterval(function () {
+      var mySeq = ++seq;
+      api("GET", "api/me").then(function (d) {
+        $("mode").textContent = "● Live · saving to the log";
+        renderCounter(d, mySeq);
+      }).catch(function (err) {
+        if (!signedOut(err)) $("mode").textContent = "⚠ Can't reach server";
+      });
+    }, 2000);
+  }
+
+  function count(delta) {
+    if ($("screen-counter").hidden) return;
+    var mySeq = ++seq;
+    api("POST", "api/count", { delta: delta }).then(function (d) { renderCounter(d, mySeq); }).catch(function (err) {
+      if (signedOut(err)) return;
+      if (err.status === 409) { api("GET", "api/me").then(function (d) { me = d; showChoose(); }); return; }
+      $("mode").textContent = "⚠ Can't reach server";
+    });
+  }
+  $("plus").onclick = function () { count(1); };
+  $("minus").onclick = function () { count(-1); };
+  document.addEventListener("keydown", function (e) {
+    if (e.target.tagName === "INPUT" || e.target.tagName === "SELECT") return;
+    if (e.key === "+" || e.key === "=" || e.key === "ArrowUp") count(1);
+    if (e.key === "-" || e.key === "_" || e.key === "ArrowDown") count(-1);
+  });
+
+  $("edit-goal").onclick = function () {
+    $("goal-input").value = me.session ? me.session.goal : "";
+    $("goal-form").hidden = false;
+    $("goal-input").focus();
+  };
+  $("goal-cancel").onclick = function () { $("goal-form").hidden = true; };
+  $("goal-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var mySeq = ++seq;
+    api("POST", "api/session/goal", { goal: parseInt($("goal-input").value, 10) }).then(function (d) {
+      $("goal-form").hidden = true;
+      status("counter-status", "Goal updated.", true);
+      renderCounter(d, mySeq);
+    }).catch(function (err) { if (!signedOut(err)) status("counter-status", err.message, false); });
+  });
+
+  $("finish").onclick = function () {
+    confirmTap(this, "Tap again to finish", function () {
+      api("POST", "api/session/finish").catch(function () {}).then(function () {
+        setToken(null);
+        showSignin();
+        status("signin-status", "Session finished. Your boxes are saved in the log.", true);
+      });
     });
   };
 
-  churchEl.addEventListener("input", function () {
-    var name = churchEl.value.trim();
-    churchLabel.textContent = name;
-    clearTimeout(churchTimer);
-    churchTimer = setTimeout(function () {
-      if (shared) api("POST", "api/count", { church: name }).catch(function () {});
-      else saveLocal(CHURCH_KEY, name);
-    }, 500);
-  });
+  function signOut() {
+    api("POST", "api/logout").catch(function () {}).then(function () { setToken(null); showSignin(); });
+  }
+  $("signout").onclick = signOut;
 
-  document.getElementById("save-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    var church = churchEl.value.trim();
-    if (!church) { showStatus("Enter the church name first.", false); churchEl.focus(); return; }
-    if (!dateEl.value) { showStatus("Pick the date the boxes were packed.", false); return; }
-    if (!shared) { showStatus("Saving to the log needs the server running (node server.js).", false); return; }
-    api("POST", "api/log", { church: church, date: dateEl.value, total: count }).then(function (d) {
-      showStatus((d.updated ? "Updated: " : "Saved: ") + church + ", " + formatDate(dateEl.value) + ", " +
-        count.toLocaleString() + " boxes.", true);
+  function startPhone() {
+    if (!getToken()) { showSignin(); return; }
+    api("GET", "api/me").then(function (d) {
+      me = d;
+      // Within 72 hours of choosing new/continue, go straight back to the counter.
+      if (d.decided && d.session) showCounter();
+      else showChoose();
     }).catch(function (err) {
-      showStatus("Not saved: " + err.message, false);
+      if (signedOut(err)) return;
+      $("loading-text").textContent = "Can't reach the server. Check it's running, then refresh.";
     });
-  });
+  }
 
-  // Keyboard: + / up arrow to add, - / down arrow to subtract (not while typing).
-  document.addEventListener("keydown", function (e) {
-    if (e.target.tagName === "INPUT") return;
-    if (e.key === "+" || e.key === "=" || e.key === "ArrowUp") change({ delta: 1 });
-    if (e.key === "-" || e.key === "_" || e.key === "ArrowDown") change({ delta: -1 });
-  });
+  // ---------- TV ----------
+  function loadTvChurch() { try { return localStorage.getItem(TV_KEY); } catch (e) { return null; } }
+  function saveTvChurch(id) { try { localStorage.setItem(TV_KEY, id); } catch (e) {} }
 
-  // Try the shared server first; fall back to saving in this browser.
-  api("GET", "api/count").then(function (d) {
-    shared = true;
-    modeEl.textContent = "● Live — shared across devices";
-    applyState(d);
-    setInterval(function () {
-      api("GET", "api/count").then(function (d) {
-        modeEl.textContent = "● Live — shared across devices";
-        applyState(d);
-      }).catch(function () {
-        modeEl.textContent = "⚠ Can't reach server";
+  // "#tv" jumps straight to this TV's last church (or the only one packing);
+  // "#tv-pick" always shows the list so the TV can be switched.
+  function showTvPicker(auto) {
+    show("screen-tvpick");
+    setSub("TV display");
+    function refresh() {
+      api("GET", "api/churches").then(function (d) {
+        var active = d.churches.filter(function (c) { return c.active; });
+        var saved = loadTvChurch();
+        if (auto && saved && active.some(function (c) { return c.id === saved; })) { location.hash = "#tv-" + saved; return; }
+        if (auto && active.length === 1) { location.hash = "#tv-" + active[0].id; return; }
+        var list = $("tv-list");
+        list.innerHTML = "";
+        active.forEach(function (c) {
+          var b = el("a", "btn btn-secondary", c.name);
+          b.href = "#tv-" + c.id;
+          list.appendChild(b);
+        });
+        $("tv-pick-hint").textContent = active.length
+          ? "Pick the church whose total this TV should show."
+          : "No church is packing right now. This screen updates when one starts.";
+      }).catch(function () { $("tv-pick-hint").textContent = "Can't reach the server."; });
+    }
+    refresh();
+    pollTimer = setInterval(refresh, 5000);
+  }
+
+  function showTv(id) {
+    show("screen-tv");
+    setSub("Shoebox Packing Tracker");
+    saveTvChurch(id);
+    setMenuHref("tv", "index.html#tv-pick");
+    var wallCanvas = $("wall");
+    wallCanvas.hidden = false;
+    var wall = new BrickWall(wallCanvas);
+    function poll() {
+      api("GET", "api/tv/" + id).then(function (d) {
+        $("tv-church").textContent = d.church.name;
+        var s = d.session;
+        if (!s) {
+          bump($("tv-total"), 0);
+          $("tv-goal").textContent = "Waiting for " + d.church.name + " to start packing";
+          wall.update(0, 0);
+          return;
+        }
+        bump($("tv-total"), s.count);
+        $("tv-goal").textContent = s.count >= s.goal
+          ? "Goal of " + s.goal.toLocaleString() + " reached!"
+          : "Goal " + s.goal.toLocaleString() + " · " + (s.goal - s.count).toLocaleString() + " to go";
+        wall.update(s.count, s.goal);
+        celebrate(s, d.church.name);
+      }).catch(function (err) {
+        if (err.status === 404) { try { localStorage.removeItem(TV_KEY); } catch (e) {} location.hash = "#tv"; }
       });
-    }, 2000);
-  }).catch(function () {
-    modeEl.textContent = "Saved on this device";
-    render(parseInt(loadLocal(KEY), 10) || 0);
-    renderChurch(loadLocal(CHURCH_KEY) || "");
-  });
+    }
+    poll();
+    pollTimer = setInterval(poll, 1000);
+  }
+
+  if (isTv) {
+    document.body.classList.add("tv");
+    var m = /^#tv-([0-9a-f-]{36})$/.exec(location.hash);
+    if (m) showTv(m[1]); else showTvPicker(location.hash === "#tv");
+  } else {
+    startPhone();
+  }
 })();
 </script>
 </body>

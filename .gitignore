@@ -1,4 +1,5 @@
 count.json
+data.json
 log.json
 *.tmp
 node_modules/
