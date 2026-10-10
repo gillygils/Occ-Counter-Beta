@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Shoebox Counter</title>
 <style>
   :root {
@@ -16,6 +16,8 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; }
+  /* Stop phones zooming in when the buttons are tapped quickly. */
+  html { touch-action: manipulation; }
   body {
     font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     color: var(--ink);
@@ -77,6 +79,10 @@
     box-shadow: 0 6px 0 rgba(0,0,0,.25);
     transition: transform .06s ease, box-shadow .06s ease;
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
   button:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
   .add { background: var(--green); }
