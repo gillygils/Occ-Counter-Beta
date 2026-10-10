@@ -21,7 +21,8 @@
   var PAGES = [
     { href: "index.html", label: "Counter", id: "counter" },
     { href: "index.html#tv", label: "TV display", id: "tv" },
-    { href: "log.html", label: "Packing log", id: "log" }
+    { href: "log.html", label: "Packing log", id: "log" },
+    { href: "history.html", label: "Packing history", id: "history" }
   ];
 
   // Builds the logo button + menu inside <div class="logo-wrap" id="logo-wrap">.
@@ -96,6 +97,25 @@
   window.todayIso = function () {
     var d = new Date();
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
+
+  // Small DOM helper used by the log and history pages.
+  window.el = function (tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined) e.textContent = text;
+    return e;
+  };
+
+  // Adds up entries by a key, e.g. by year or by church.
+  // Returns [{ key, total }] sorted by the given compare function.
+  window.sumBy = function (entries, keyFn, compare) {
+    var map = {};
+    entries.forEach(function (e) {
+      var k = keyFn(e);
+      map[k] = (map[k] || 0) + e.total;
+    });
+    return Object.keys(map).map(function (k) { return { key: k, total: map[k] }; }).sort(compare);
   };
 
   // Two-tap confirm for destructive buttons (pop-up dialogs are easy to miss on phones).

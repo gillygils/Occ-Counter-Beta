@@ -13,6 +13,8 @@ const STATIC = {
   "/index.html": "index.html",
   "/log": "log.html",
   "/log.html": "log.html",
+  "/history": "history.html",
+  "/history.html": "history.html",
   "/style.css": "style.css",
   "/common.js": "common.js",
   "/logo.png": "logo.png"

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Packing History</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="card log">
+    <!-- Tap the logo for the page menu. -->
+    <div class="logo-wrap" id="logo-wrap"></div>
+    <h1>Operation Christmas Child</h1>
+    <p class="sub">Packing History</p>
+
+    <div id="content"><p class="log-empty">Loading…</p></div>
+
+    <footer>
+      <span id="mode"></span>
+      <span>Totals add up every saved day in the log.</span>
+    </footer>
+  </main>
+
+<script src="common.js"></script>
+<script>
+(function () {
+  var content = document.getElementById("content");
+  var modeEl = document.getElementById("mode");
+  var entries = [];
+
+  setupLogoMenu(function () { return "history"; });
+
+  function boxes(n) { return n.toLocaleString() + (n === 1 ? " box" : " boxes"); }
+
+  function yearOf(e) { return e.date.slice(0, 4); }
+
+  // All years, newest first. Tap a year to see its churches.
+  function renderYears() {
+    content.innerHTML = "";
+    var years = sumBy(entries, yearOf, function (a, b) { return b.key - a.key; });
+    if (!years.length) {
+      content.appendChild(el("p", "log-empty",
+        "No packing saved yet. Totals appear here once churches tap Save to log on the counter page."));
+      return;
+    }
+    content.appendChild(el("p", "hint", "Tap a year to see each church's total."));
+    var list = el("div", "year-list");
+    years.forEach(function (y) {
+      var churches = sumBy(entries.filter(function (e) { return yearOf(e) === y.key; }),
+        function (e) { return e.church; }, function () { return 0; }).length;
+      var a = el("a", "year-row");
+      a.href = "#" + y.key;
+      var left = el("div");
+      left.appendChild(el("div", "year", y.key));
+      left.appendChild(el("div", "meta", churches + (churches === 1 ? " church" : " churches")));
+      var right = el("div", "boxes", y.total.toLocaleString());
+      right.appendChild(el("small", "", y.total === 1 ? "box" : "boxes"));
+      a.appendChild(left);
+      a.appendChild(right);
+      list.appendChild(a);
+    });
+    content.appendChild(list);
+  }
+
+  // One year: each church and how many boxes it packed, plus the year total.
+  function renderYear(year) {
+    content.innerHTML = "";
+    var back = el("a", "back", "← All years");
+    back.href = "#";
+    content.appendChild(back);
+    content.appendChild(el("h2", "year-title", year));
+
+    var inYear = entries.filter(function (e) { return yearOf(e) === year; });
+    if (!inYear.length) {
+      content.appendChild(el("p", "log-empty", "Nothing saved for " + year + "."));
+      return;
+    }
+    var churches = sumBy(inYear, function (e) { return e.church; },
+      function (a, b) { return b.total - a.total || a.key.localeCompare(b.key); });
+
+    var wrap = el("div", "table-wrap");
+    var table = el("table");
+    var head = el("tr");
+    head.appendChild(el("th", "", "Church"));
+    head.appendChild(el("th", "num", "Boxes packed"));
+    var thead = el("thead"); thead.appendChild(head); table.appendChild(thead);
+    var tbody = el("tbody");
+    var sum = 0;
+    churches.forEach(function (c) {
+      sum += c.total;
+      var tr = el("tr");
+      tr.appendChild(el("td", "", c.key));
+      tr.appendChild(el("td", "num", c.total.toLocaleString()));
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    var tfoot = el("tfoot");
+    var foot = el("tr");
+    foot.appendChild(el("td", "", year + " total"));
+    foot.appendChild(el("td", "num", sum.toLocaleString()));
+    tfoot.appendChild(foot);
+    table.appendChild(tfoot);
+    wrap.appendChild(table);
+    content.appendChild(wrap);
+  }
+
+  function route() {
+    var year = location.hash.slice(1);
+    if (/^\d{4}$/.test(year)) renderYear(year);
+    else renderYears();
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener("hashchange", route);
+
+  api("GET", "api/log").then(function (d) {
+    modeEl.textContent = "● Live";
+    entries = d.entries;
+    route();
+  }).catch(function () {
+    content.innerHTML = "";
+    content.appendChild(el("p", "log-empty",
+      "Packing history needs the server running (node server.js). Open this page from the server's address."));
+  });
+})();
+</script>
+</body>
+</html>

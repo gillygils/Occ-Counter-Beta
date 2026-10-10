@@ -224,3 +224,29 @@ footer > span:first-child { white-space: nowrap; }
 }
 td.num { font-weight: 800; font-size: 1.2rem; color: var(--red); }
 td.del { text-align: right; width: 1%; white-space: nowrap; }
+
+/* Filters and totals on the log and history pages */
+.filter { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.filter label { font-size: .8rem; font-weight: 700; color: var(--green-dark); }
+.filter select {
+  font: inherit; font-size: 1rem; padding: 10px 12px; border-radius: 10px;
+  border: 2px solid var(--cream-dark); background: #fff; color: var(--ink); max-width: 100%;
+}
+.filter select:focus { outline: none; border-color: var(--green); }
+tfoot td { border-bottom: 0; border-top: 3px solid var(--green); font-weight: 800; color: var(--green-dark); padding-top: 14px; }
+tfoot td.num { font-size: 1.5rem; }
+.year-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.year-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  width: 100%; padding: 16px 18px; border-radius: 14px; border: 2px solid var(--cream-dark);
+  background: #fff; color: var(--ink); text-decoration: none; font: inherit; text-align: left;
+}
+.year-row:hover, .year-row:focus-visible { border-color: var(--green); outline: none; }
+.year-row .year { font-size: 1.4rem; font-weight: 800; color: var(--green-dark); }
+.year-row .meta { font-size: .8rem; color: var(--muted); }
+.year-row .boxes { font-size: 1.6rem; font-weight: 800; color: var(--red); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.year-row .boxes small { font-size: .8rem; color: var(--muted); font-weight: 600; margin-left: 4px; }
+.back { display: inline-block; margin-bottom: 10px; color: var(--green-dark); font-weight: 700; text-decoration: none; }
+.back:hover { text-decoration: underline; }
+.year-title { margin: 0 0 4px; font-size: 1.6rem; color: var(--green-dark); }
+.hint { margin: 0 0 12px; color: var(--muted); font-size: .85rem; }
